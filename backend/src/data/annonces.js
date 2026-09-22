@@ -245,4 +245,77 @@ const annonces = [
   },
 ];
 
+// Photos réelles (Wikimedia Commons, libres de droits) choisies à la main par
+// thème — ce ne sont PAS les vraies photos de ces biens fictifs, juste des
+// illustrations cohérentes avec le type/style de chaque annonce. Le crédit
+// (auteur + licence) est affiché sur la carte, comme l'exigent les licences
+// CC BY / CC BY-SA.
+// focusY = position verticale (en %) du sujet dans la photo, pour un recadrage
+// "object-fit: cover" qui garde le bâtiment visible plutôt que le ciel/la rue
+// (chaque photo a une composition différente, un seul réglage global ne convient pas).
+const PHOTOS = {
+  suburbanGardens: {
+    url: 'https://upload.wikimedia.org/wikipedia/commons/b/b6/Suburban_Houses_and_Gardens_-_geograph.org.uk_-_504090.jpg',
+    credit: 'Tony Atkin / Wikimedia Commons (CC BY-SA 2.0)',
+    focusY: '50%',
+  },
+  urbanskiHouse: {
+    url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Walter_J._Urbanski_House%2C_Cheektowaga%2C_New_York_-_20221221.jpg/960px-Walter_J._Urbanski_House%2C_Cheektowaga%2C_New_York_-_20221221.jpg',
+    credit: 'Andre Carrotflower / Wikimedia Commons (CC BY-SA 4.0)',
+    focusY: '65%',
+  },
+  cozyCottage: {
+    url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Cozy_Cottage_Home_%28Unsplash%29.jpg/960px-Cozy_Cottage_Home_%28Unsplash%29.jpg',
+    credit: 'Ritchie Valens / Wikimedia Commons (CC0)',
+    focusY: '40%',
+  },
+  corindaPool: {
+    url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/The_backyard_and_swimming_pool_of_a_house_in_Corinda%2C_Queensland.jpg/960px-The_backyard_and_swimming_pool_of_a_house_in_Corinda%2C_Queensland.jpg',
+    credit: 'Kgbo / Wikimedia Commons (CC BY-SA 4.0)',
+    focusY: '55%',
+  },
+  portoApartment: {
+    url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Tiled_Mid-Century_Apartment_Building_with_Balconies_in_Porto%2C_Portugal_%2854821673190%29.jpg/960px-Tiled_Mid-Century_Apartment_Building_with_Balconies_in_Porto%2C_Portugal_%2854821673190%29.jpg',
+    credit: 'Dale Cruse / Wikimedia Commons (CC BY 4.0)',
+    focusY: '15%',
+  },
+  charmingBuilding: {
+    url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/Charming_red_brick_building_with_green_accents.jpg/960px-Charming_red_brick_building_with_green_accents.jpg',
+    credit: 'Wekad282 / Wikimedia Commons (CC0)',
+    focusY: '30%',
+  },
+  warehouseLoft: {
+    url: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Marshall-Wells_Warehouse_No2_-_Portland_Oregon.jpg/960px-Marshall-Wells_Warehouse_No2_-_Portland_Oregon.jpg',
+    credit: 'Ian Poellet / Wikimedia Commons (CC BY-SA 3.0)',
+    focusY: '10%',
+  },
+};
+
+// Association annonce -> photo, choisie par cohérence de type/style.
+const PHOTO_PAR_ANNONCE = {
+  1: 'urbanskiHouse',
+  2: 'charmingBuilding',
+  3: 'cozyCottage',
+  4: 'warehouseLoft',
+  5: 'portoApartment',
+  6: 'corindaPool',
+  7: 'charmingBuilding',
+  8: 'suburbanGardens',
+  9: 'portoApartment',
+  10: 'cozyCottage',
+  11: 'charmingBuilding',
+  12: 'corindaPool',
+  13: 'warehouseLoft',
+  14: 'urbanskiHouse',
+  15: 'portoApartment',
+  16: 'suburbanGardens',
+};
+
+for (const annonce of annonces) {
+  const photo = PHOTOS[PHOTO_PAR_ANNONCE[annonce.id]];
+  annonce.image = photo.url;
+  annonce.creditPhoto = photo.credit;
+  annonce.imageFocusY = photo.focusY;
+}
+
 export default annonces;

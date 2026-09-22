@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 // Pictogramme maison (toit + façade + porte), en lien avec le currentColor du parent.
 function IconeMaison() {
   return (
@@ -24,12 +26,27 @@ function IconeImmeuble() {
 // raisons qui ont contribué à ce score.
 export default function AnnonceCard({ resultat }) {
   const { annonce, pourcentage, raisons } = resultat;
+  const [imageEnErreur, setImageEnErreur] = useState(false);
 
   return (
     <article className="annonce-card">
-      <div className="annonce-card__vignette">
-        {annonce.type === 'maison' ? <IconeMaison /> : <IconeImmeuble />}
-      </div>
+      {annonce.image && !imageEnErreur ? (
+        <div className="annonce-card__vignette annonce-card__vignette--photo">
+          <img
+            className="annonce-card__image"
+            src={annonce.image}
+            alt=""
+            loading="lazy"
+            style={{ objectPosition: `center ${annonce.imageFocusY ?? '50%'}` }}
+            onError={() => setImageEnErreur(true)}
+          />
+          {annonce.creditPhoto && <span className="annonce-card__credit">{annonce.creditPhoto}</span>}
+        </div>
+      ) : (
+        <div className="annonce-card__vignette">
+          {annonce.type === 'maison' ? <IconeMaison /> : <IconeImmeuble />}
+        </div>
+      )}
       <div className="annonce-card__contenu">
         <header className="annonce-card__entete">
           <h3>{annonce.titre}</h3>
