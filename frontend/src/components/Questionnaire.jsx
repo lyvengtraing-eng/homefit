@@ -4,7 +4,7 @@ import { HOBBIES, AMBIANCES, TYPES_LOGEMENT, STYLES_INTERIEUR, TEMPERAMENTS, COU
 // Questionnaire de profil : hobbies, ambiance recherchée, budget, ville,
 // importance des écoles, traits de personnalité (pour la déco), et un champ
 // libre optionnel. Appelle onValider(profil) à la soumission.
-export default function Questionnaire({ onValider }) {
+export default function Questionnaire({ onValider, titre = 'Parle-nous de toi', texteBouton = 'Voir mes recommandations' }) {
   const [hobbies, setHobbies] = useState([]);
   const [ambiance, setAmbiance] = useState('');
   const [typeLogement, setTypeLogement] = useState('peu_importe');
@@ -43,7 +43,7 @@ export default function Questionnaire({ onValider }) {
 
   return (
     <form className="questionnaire" onSubmit={soumettre}>
-      <h2>Parle-nous de toi</h2>
+      <h2>{titre}</h2>
 
       <fieldset>
         <legend>Tes hobbies</legend>
@@ -210,7 +210,7 @@ export default function Questionnaire({ onValider }) {
       </fieldset>
 
       <button type="submit" className="questionnaire__valider">
-        Voir mes recommandations
+        {texteBouton}
       </button>
     </form>
   );

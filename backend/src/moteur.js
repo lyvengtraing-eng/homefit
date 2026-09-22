@@ -231,6 +231,97 @@ function classerAnnonces(profil, listeAnnonces) {
     .sort((a, b) => b.score - a.score);
 }
 
+/**
+ * Points de friction entre deux profils : préférences qui divergent assez
+ * pour valoir la peine d'être signalées (ambiance, type de logement, budget).
+ */
+function identifierFrictions(profilA, profilB) {
+  const frictions = [];
+
+  const ambianceA = deduireAmbiancePreferee(profilA);
+  const ambianceB = deduireAmbiancePreferee(profilB);
+  if (ambianceA && ambianceB && ambianceA !== ambianceB) {
+    frictions.push(`Ambiance recherchée différente : ${ambianceA} d'un côté, ${ambianceB} de l'autre`);
+  }
+
+  if (
+    profilA.typeLogement &&
+    profilB.typeLogement &&
+    profilA.typeLogement !== 'peu_importe' &&
+    profilB.typeLogement !== 'peu_importe' &&
+    profilA.typeLogement !== profilB.typeLogement
+  ) {
+    frictions.push(`Type de logement différent : ${profilA.typeLogement} d'un côté, ${profilB.typeLogement} de l'autre`);
+  }
+
+  if (
+    Number.isFinite(profilA.budgetMax) &&
+    Number.isFinite(profilB.budgetMax) &&
+    profilA.budgetMax > 0 &&
+    profilB.budgetMax > 0
+  ) {
+    const ecart = Math.abs(profilA.budgetMax - profilB.budgetMax) / Math.max(profilA.budgetMax, profilB.budgetMax);
+    if (ecart > 0.25) {
+      frictions.push(
+        `Budgets assez éloignés : ${profilA.budgetMax.toLocaleString('fr-FR')} € d'un côté, ${profilB.budgetMax.toLocaleString('fr-FR')} € de l'autre`
+      );
+    }
+  }
+
+  return frictions;
+}
+
+/**
+ * Points communs entre deux profils : hobbies partagés, même ambiance
+ * recherchée — ce qui rend le duo plus facile à satisfaire.
+ */
+function identifierPointsCommuns(profilA, profilB) {
+  const communs = [];
+
+  const hobbiesA = new Set(profilA.hobbies ?? []);
+  const hobbiesCommuns = (profilB.hobbies ?? []).filter((h) => hobbiesA.has(h));
+  if (hobbiesCommuns.length > 0) {
+    communs.push(`Hobbies en commun : ${hobbiesCommuns.join(', ')}`);
+  }
+
+  const ambianceA = deduireAmbiancePreferee(profilA);
+  const ambianceB = deduireAmbiancePreferee(profilB);
+  if (ambianceA && ambianceA === ambianceB) {
+    communs.push(`Même ambiance recherchée : ${ambianceA}`);
+  }
+
+  return communs;
+}
+
+/**
+ * Classe les annonces pour DEUX profils à la fois (couple, colocation...) :
+ * calcule le score de chacun séparément, puis un score de compatibilité duo
+ * qui favorise les annonces bonnes pour les deux plutôt que excellentes pour
+ * l'un et mauvaises pour l'autre (pénalité sur l'écart entre les deux scores).
+ */
+function classerAnnoncesDuo(profilA, profilB, listeAnnonces) {
+  const classementA = classerAnnonces(profilA, listeAnnonces);
+  const classementB = classerAnnonces(profilB, listeAnnonces);
+  const parIdB = new Map(classementB.map((resultat) => [resultat.annonce.id, resultat]));
+
+  return classementA
+    .map((resultatA) => {
+      const resultatB = parIdB.get(resultatA.annonce.id);
+      const ecart = Math.abs(resultatA.pourcentage - resultatB.pourcentage);
+      const pourcentageDuo = Math.max(0, Math.round((resultatA.pourcentage + resultatB.pourcentage) / 2 - ecart * 0.15));
+
+      return {
+        annonce: resultatA.annonce,
+        pourcentageA: resultatA.pourcentage,
+        pourcentageB: resultatB.pourcentage,
+        pourcentageDuo,
+        raisonsA: resultatA.raisons,
+        raisonsB: resultatB.raisons,
+      };
+    })
+    .sort((a, b) => b.pourcentageDuo - a.pourcentageDuo);
+}
+
 export {
   HOBBIES_VALIDES,
   AMBIANCES_VALIDES,
@@ -241,4 +332,7 @@ export {
   pourcentageCompatibilite,
   classerAnnonces,
   deduireAmbiancePreferee,
+  identifierFrictions,
+  identifierPointsCommuns,
+  classerAnnoncesDuo,
 };

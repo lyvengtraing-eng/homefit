@@ -6,6 +6,9 @@ import {
   deduireAmbiancePreferee,
   calculerScoreMax,
   pourcentageCompatibilite,
+  identifierFrictions,
+  identifierPointsCommuns,
+  classerAnnoncesDuo,
   POIDS,
 } from '../src/moteur.js';
 
@@ -241,5 +244,85 @@ describe('classerAnnonces', () => {
     const profil = { budgetMax: 350000, ville: 'Nantes', ecoleImportante: 'oui', ambiance: 'calme' };
     const classement = classerAnnonces(profil, [annonceBase]);
     assert.equal(classement[0].pourcentage, 100);
+  });
+});
+
+describe('identifierFrictions', () => {
+  test('signale une ambiance différente entre les deux profils', () => {
+    const frictions = identifierFrictions({ ambiance: 'calme' }, { ambiance: 'animee' });
+    assert.ok(frictions.some((f) => f.includes('Ambiance')));
+  });
+
+  test('ne signale rien si les ambiances sont identiques', () => {
+    const frictions = identifierFrictions({ ambiance: 'calme' }, { ambiance: 'calme' });
+    assert.equal(frictions.length, 0);
+  });
+
+  test('signale un type de logement différent (hors "peu importe")', () => {
+    const frictions = identifierFrictions({ typeLogement: 'maison' }, { typeLogement: 'appartement' });
+    assert.ok(frictions.some((f) => f.includes('logement')));
+  });
+
+  test('ne signale pas de friction de type si l\'un des deux dit "peu importe"', () => {
+    const frictions = identifierFrictions({ typeLogement: 'maison' }, { typeLogement: 'peu_importe' });
+    assert.ok(!frictions.some((f) => f.includes('logement')));
+  });
+
+  test('signale un écart de budget important (> 25%)', () => {
+    const frictions = identifierFrictions({ budgetMax: 200000 }, { budgetMax: 350000 });
+    assert.ok(frictions.some((f) => f.includes('udget')));
+  });
+
+  test('ne signale pas un petit écart de budget', () => {
+    const frictions = identifierFrictions({ budgetMax: 300000 }, { budgetMax: 320000 });
+    assert.ok(!frictions.some((f) => f.includes('udget')));
+  });
+});
+
+describe('identifierPointsCommuns', () => {
+  test('relève les hobbies partagés par les deux profils', () => {
+    const communs = identifierPointsCommuns({ hobbies: ['musique', 'lecture'] }, { hobbies: ['lecture', 'velo'] });
+    assert.ok(communs.some((c) => c.includes('lecture')));
+  });
+
+  test('relève une ambiance commune', () => {
+    const communs = identifierPointsCommuns({ ambiance: 'calme' }, { ambiance: 'calme' });
+    assert.ok(communs.some((c) => c.includes('Même ambiance')));
+  });
+
+  test('ne relève rien si aucun hobby ni ambiance en commun', () => {
+    const communs = identifierPointsCommuns({ hobbies: ['musique'], ambiance: 'calme' }, { hobbies: ['velo'], ambiance: 'animee' });
+    assert.equal(communs.length, 0);
+  });
+});
+
+describe('classerAnnoncesDuo', () => {
+  const annonceB = { ...annonceBase, id: 2, ville: 'Lyon' };
+
+  test('renvoie un pourcentageA, pourcentageB et pourcentageDuo pour chaque annonce', () => {
+    const classement = classerAnnoncesDuo({ ville: 'Nantes' }, { ville: 'Lyon' }, [annonceBase, annonceB]);
+    for (const resultat of classement) {
+      assert.ok(Number.isFinite(resultat.pourcentageA));
+      assert.ok(Number.isFinite(resultat.pourcentageB));
+      assert.ok(Number.isFinite(resultat.pourcentageDuo));
+    }
+  });
+
+  test('le score duo est égal à la moyenne quand les deux profils sont parfaitement alignés', () => {
+    const profil = { ville: 'Nantes', budgetMax: 350000 };
+    const classement = classerAnnoncesDuo(profil, profil, [annonceBase]);
+    assert.equal(classement[0].pourcentageA, classement[0].pourcentageB);
+    assert.equal(classement[0].pourcentageDuo, classement[0].pourcentageA);
+  });
+
+  test('un grand écart entre les deux profils pénalise le score duo par rapport à la simple moyenne', () => {
+    const classement = classerAnnoncesDuo({ ville: 'Nantes' }, { ville: 'Marseille' }, [annonceBase]);
+    const moyenneSimple = (classement[0].pourcentageA + classement[0].pourcentageB) / 2;
+    assert.ok(classement[0].pourcentageDuo <= moyenneSimple);
+  });
+
+  test('trie par pourcentageDuo décroissant', () => {
+    const classement = classerAnnoncesDuo({ ville: 'Nantes' }, { ville: 'Nantes' }, [annonceBase, annonceB]);
+    assert.ok(classement[0].pourcentageDuo >= classement[1].pourcentageDuo);
   });
 });

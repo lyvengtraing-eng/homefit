@@ -22,4 +22,7 @@ async function requete(chemin, options) {
 export const api = {
   // Envoie le profil (questionnaire + texte libre) et récupère le classement des annonces + la suggestion déco.
   obtenirRecommandations: (profil) => requete('/recommandations', { method: 'POST', body: JSON.stringify(profil) }),
+  // Envoie deux profils (couple, colocation...) et récupère un classement combiné + les points de friction/communs.
+  obtenirRecommandationsDuo: (profilA, profilB) =>
+    requete('/recommandations/duo', { method: 'POST', body: JSON.stringify({ profilA, profilB }) }),
 };

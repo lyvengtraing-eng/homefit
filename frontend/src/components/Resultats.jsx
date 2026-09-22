@@ -2,14 +2,15 @@ import AnnonceCard from './AnnonceCard';
 
 // Affiche la suggestion déco puis le classement des annonces, avec un bouton
 // pour revenir modifier ses critères.
-export default function Resultats({ donnees, onModifier }) {
+export default function Resultats({ donnees, onModifier, onComparerDuo }) {
   const { deco, resultats } = donnees;
 
   return (
     <div className="resultats">
-      <button className="resultats__retour" onClick={onModifier}>
-        ← Modifier mes critères
-      </button>
+      <div className="resultats__actions">
+        <button onClick={onModifier}>← Modifier mes critères</button>
+        <button onClick={onComparerDuo}>👫 Comparer avec quelqu'un</button>
+      </div>
 
       <section className="deco-suggestion">
         <h2>Ton style déco : {deco.nom}</h2>

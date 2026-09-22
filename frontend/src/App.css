@@ -101,7 +101,10 @@
 
 /* Résultats */
 
-.resultats__retour {
+.resultats__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
   margin-bottom: 20px;
 }
 
@@ -138,6 +141,86 @@
 
 .deco-suggestion__touches li {
   margin-bottom: 4px;
+}
+
+/* Mode duo */
+
+.duo-bilan {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 640px) {
+  .duo-bilan {
+    grid-template-columns: 1fr;
+  }
+}
+
+.duo-bilan__colonne {
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
+.duo-bilan__colonne h3 {
+  margin-top: 0;
+  font-size: 0.95rem;
+}
+
+.duo-bilan__colonne ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.duo-bilan__colonne--communs {
+  background: #e9f5e9;
+  border: 1px solid #7cb87c;
+}
+
+.duo-bilan__colonne--frictions {
+  background: #fdeeea;
+  border: 1px solid #e0a08a;
+}
+
+.deco-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .deco-duo {
+    grid-template-columns: 1fr;
+  }
+}
+
+.deco-duo__colonne {
+  margin-bottom: 0;
+}
+
+.deco-duo__colonne h2 {
+  font-size: 1.1rem;
+}
+
+.annonce-card-duo__detail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--couleur-bordure);
+}
+
+@media (max-width: 640px) {
+  .annonce-card-duo__detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+.annonce-card-duo__personne-score {
+  font-weight: 600;
+  margin: 0 0 4px;
 }
 
 .resultats__liste {
