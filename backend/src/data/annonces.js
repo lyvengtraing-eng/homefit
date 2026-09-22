@@ -59,9 +59,9 @@ const annonces = [
     ambiance: 'animee',
     proximiteEcoles: 'moyenne',
     proximiteNature: 'moyenne',
-    equipements: ['terrasse', 'parking'],
+    equipements: ['terrasse', 'parking', 'local_velo'],
     styleActuel: 'industriel',
-    description: 'Loft atypique aux volumes généreux, à proximité des quais et pistes cyclables.',
+    description: 'Loft atypique aux volumes généreux, à proximité des quais et pistes cyclables. Local à vélo sécurisé en pied d\'immeuble.',
   },
   {
     id: 5,
@@ -134,9 +134,9 @@ const annonces = [
     ambiance: 'equilibree',
     proximiteEcoles: 'moyenne',
     proximiteNature: 'bonne',
-    equipements: ['balcon', 'parking'],
+    equipements: ['balcon', 'parking', 'ascenseur', 'local_velo'],
     styleActuel: 'moderne épuré',
-    description: 'Appartement récent proche des berges et pistes de course à pied.',
+    description: 'Appartement récent de plain-pied avec ascenseur, proche des berges et pistes cyclables. Local à vélo dans la résidence.',
   },
   {
     id: 10,

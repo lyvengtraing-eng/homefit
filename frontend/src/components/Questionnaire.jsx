@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HOBBIES, AMBIANCES, TYPES_LOGEMENT, STYLES_INTERIEUR, TEMPERAMENTS } from '../constants';
+import { HOBBIES, AMBIANCES, TYPES_LOGEMENT, STYLES_INTERIEUR, TEMPERAMENTS, COULEURS, LUMIERES } from '../constants';
 
 // Questionnaire de profil : hobbies, ambiance recherchée, budget, ville,
 // importance des écoles, traits de personnalité (pour la déco), et un champ
@@ -11,8 +11,11 @@ export default function Questionnaire({ onValider }) {
   const [ecoleImportante, setEcoleImportante] = useState('non');
   const [budgetMax, setBudgetMax] = useState('');
   const [ville, setVille] = useState('');
+  const [piecesMin, setPiecesMin] = useState('');
   const [styleInterieur, setStyleInterieur] = useState('chaleureux');
   const [temperament, setTemperament] = useState('pragmatique');
+  const [couleur, setCouleur] = useState('');
+  const [lumiere, setLumiere] = useState('');
   const [texteLibre, setTexteLibre] = useState('');
 
   // Coche/décoche un hobby dans la sélection multiple.
@@ -29,8 +32,11 @@ export default function Questionnaire({ onValider }) {
       ecoleImportante,
       budgetMax: budgetMax === '' ? null : Number(budgetMax),
       ville: ville.trim() || null,
+      piecesMin: piecesMin === '' ? null : Number(piecesMin),
       styleInterieur,
       temperament,
+      couleur: couleur || null,
+      lumiere: lumiere || null,
       texteLibre: texteLibre.trim() || null,
     });
   };
@@ -115,6 +121,10 @@ export default function Questionnaire({ onValider }) {
           Ville recherchée
           <input type="text" value={ville} onChange={(e) => setVille(e.target.value)} placeholder="ex : Nantes" />
         </label>
+        <label className="questionnaire__champ">
+          Nombre de pièces minimum
+          <input type="number" min="1" value={piecesMin} onChange={(e) => setPiecesMin(e.target.value)} placeholder="ex : 4" />
+        </label>
       </fieldset>
 
       <fieldset>
@@ -148,6 +158,42 @@ export default function Questionnaire({ onValider }) {
                 onChange={(e) => setTemperament(e.target.value)}
               />
               {t.label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Ton rapport à la couleur (optionnel)</legend>
+        <div className="questionnaire__radios">
+          {COULEURS.map((c) => (
+            <label key={c.valeur} className="case-a-cocher">
+              <input
+                type="radio"
+                name="couleur"
+                value={c.valeur}
+                checked={couleur === c.valeur}
+                onChange={(e) => setCouleur(e.target.value)}
+              />
+              {c.label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Ton rapport à la lumière (optionnel)</legend>
+        <div className="questionnaire__radios">
+          {LUMIERES.map((l) => (
+            <label key={l.valeur} className="case-a-cocher">
+              <input
+                type="radio"
+                name="lumiere"
+                value={l.valeur}
+                checked={lumiere === l.valeur}
+                onChange={(e) => setLumiere(e.target.value)}
+              />
+              {l.label}
             </label>
           ))}
         </div>

@@ -16,6 +16,11 @@ const HOBBIES_VALIDES = [
   'musique',
   'halterophilie',
   'animaux',
+  'velo',
+  'oenologie',
+  'automobile',
+  'fumeur',
+  'mobilite_reduite',
 ];
 
 const AMBIANCES_VALIDES = ['calme', 'equilibree', 'animee'];
@@ -29,6 +34,7 @@ const POIDS = {
   nature: 15,
   ambiance: 10,
   equipement: 8,
+  pieces: 15,
 };
 
 // Équipement bonus associé à chaque hobby, quand l'annonce le propose.
@@ -50,6 +56,16 @@ const MAPPING_HOBBY_EQUIPEMENT = {
   sorties: 'terrasse',
   // Calme et studieux : une pièce à part pour s'installer sa propre bibliothèque.
   lecture: 'salle_dediee',
+  // Cycliste : un local vélo sécurisé, en plus du bonus nature (pistes cyclables).
+  velo: 'local_velo',
+  // Œnologie : une cave pour stocker/faire vieillir les bouteilles.
+  oenologie: 'cave',
+  // Passion automobile/mécanique : un garage pour bricoler ou stocker le véhicule.
+  automobile: 'garage',
+  // Fumeur : un espace extérieur pour fumer sans gêner personne.
+  fumeur: 'balcon',
+  // Mobilité réduite : un accès de plain-pied ou un ascenseur.
+  mobilite_reduite: 'ascenseur',
 };
 
 // Libellés lisibles des équipements, pour les raisons affichées à l'utilisateur.
@@ -61,10 +77,14 @@ const LABELS_EQUIPEMENT = {
   terrasse: 'terrasse',
   salle_dediee: 'pièce dédiée (20 m²+)',
   grand_volume: 'grand volume sous plafond',
+  local_velo: 'local à vélo sécurisé',
+  cave: 'cave',
+  balcon: 'balcon',
+  ascenseur: 'ascenseur',
 };
 
 // Hobbies qui rendent la proximité de la nature (parcs, forêts, pistes) pertinente.
-const HOBBIES_NATURE = ['course_a_pied', 'jardinage', 'animaux'];
+const HOBBIES_NATURE = ['course_a_pied', 'jardinage', 'animaux', 'velo'];
 
 /**
  * Déduit l'ambiance préférée du profil : le choix explicite du questionnaire
@@ -133,6 +153,17 @@ function scoreAnnonce(profil, annonce) {
     }
   }
 
+  // Nombre de pièces minimum (famille nombreuse, besoin d'espace...).
+  if (Number.isFinite(profil.piecesMin) && profil.piecesMin > 0) {
+    if (annonce.pieces >= profil.piecesMin) {
+      score += POIDS.pieces;
+      raisons.push(`Assez de pièces (${annonce.pieces})`);
+    } else {
+      const manque = profil.piecesMin - annonce.pieces;
+      score -= manque * (POIDS.pieces / 3);
+    }
+  }
+
   // Ambiance du quartier.
   const ambiancePreferee = deduireAmbiancePreferee(profil);
   if (ambiancePreferee && ambiancePreferee === annonce.ambiance) {
@@ -164,6 +195,7 @@ function calculerScoreMax(profil) {
   if (Number.isFinite(profil.budgetMax) && profil.budgetMax > 0) max += POIDS.budget;
   if (profil.ville) max += POIDS.ville;
   if (profil.ecoleImportante === 'oui') max += POIDS.ecole;
+  if (Number.isFinite(profil.piecesMin) && profil.piecesMin > 0) max += POIDS.pieces;
 
   const aimeNature = (profil.hobbies ?? []).some((h) => HOBBIES_NATURE.includes(h));
   if (aimeNature) max += POIDS.nature;

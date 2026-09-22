@@ -126,6 +126,53 @@ describe('scoreAnnonce', () => {
     // Ambiance calme (+POIDS.ambiance, déduite du hobby) + équipement pièce dédiée.
     assert.equal(score, POIDS.ambiance + POIDS.equipement);
   });
+
+  test('bonifie un cycliste sur le local vélo et la proximité nature', () => {
+    const avecLocalVelo = { ...annonceBase, equipements: ['jardin', 'local_velo'] };
+    const { score, raisons } = scoreAnnonce({ hobbies: ['velo'], typeLogement: 'appartement' }, avecLocalVelo);
+    assert.equal(score, POIDS.nature + POIDS.equipement);
+    assert.ok(raisons.some((r) => r.includes('vélo')));
+  });
+
+  test('bonifie un œnologue disposant d\'une cave', () => {
+    const avecCave = { ...annonceBase, equipements: ['jardin', 'cave'] };
+    const { score, raisons } = scoreAnnonce({ hobbies: ['oenologie'], typeLogement: 'appartement' }, avecCave);
+    assert.equal(score, POIDS.equipement);
+    assert.ok(raisons.some((r) => r.includes('cave')));
+  });
+
+  test('bonifie un passionné d\'automobile disposant d\'un garage', () => {
+    const { score, raisons } = scoreAnnonce({ hobbies: ['automobile'], typeLogement: 'appartement' }, annonceBase);
+    assert.equal(score, POIDS.equipement);
+    assert.ok(raisons.some((r) => r.includes('garage')));
+  });
+
+
+  test('bonifie un fumeur disposant d\'un balcon', () => {
+    const avecBalcon = { ...annonceBase, equipements: ['jardin', 'balcon'] };
+    const { score, raisons } = scoreAnnonce({ hobbies: ['fumeur'], typeLogement: 'appartement' }, avecBalcon);
+    assert.equal(score, POIDS.equipement);
+    assert.ok(raisons.some((r) => r.includes('balcon')));
+  });
+
+  test('bonifie un profil à mobilité réduite disposant d\'un ascenseur', () => {
+    const avecAscenseur = { ...annonceBase, equipements: ['jardin', 'ascenseur'] };
+    const { score, raisons } = scoreAnnonce({ hobbies: ['mobilite_reduite'], typeLogement: 'appartement' }, avecAscenseur);
+    assert.equal(score, POIDS.equipement);
+    assert.ok(raisons.some((r) => r.includes('ascenseur')));
+  });
+
+  test('bonifie une annonce avec assez de pièces', () => {
+    const { score, raisons } = scoreAnnonce({ piecesMin: 3 }, { ...annonceBase, pieces: 5 });
+    assert.ok(score >= POIDS.pieces);
+    assert.ok(raisons.some((r) => r.includes('Assez de pièces')));
+  });
+
+  test('pénalise une annonce avec trop peu de pièces, proportionnellement au manque', () => {
+    const unPeuJuste = scoreAnnonce({ piecesMin: 4 }, { ...annonceBase, pieces: 3 }).score;
+    const beaucoupTropPetit = scoreAnnonce({ piecesMin: 4 }, { ...annonceBase, pieces: 1 }).score;
+    assert.ok(beaucoupTropPetit < unPeuJuste, 'un manque plus important doit pénaliser davantage');
+  });
 });
 
 describe('calculerScoreMax', () => {
@@ -136,6 +183,10 @@ describe('calculerScoreMax', () => {
   test('additionne uniquement les critères réellement activés par le profil', () => {
     const max = calculerScoreMax({ budgetMax: 300000, ville: 'Nantes', ecoleImportante: 'oui' });
     assert.equal(max, POIDS.type + POIDS.budget + POIDS.ville + POIDS.ecole);
+  });
+
+  test('compte le nombre de pièces minimum quand il est renseigné', () => {
+    assert.equal(calculerScoreMax({ piecesMin: 4 }), POIDS.type + POIDS.pieces);
   });
 
   test('compte un bonus équipement par hobby pertinent', () => {

@@ -14,6 +14,19 @@ export default function Resultats({ donnees, onModifier }) {
       <section className="deco-suggestion">
         <h2>Ton style déco : {deco.nom}</h2>
         <p>{deco.description}</p>
+        {deco.modificateurs.map((modificateur, i) => (
+          <p key={i}>{modificateur}</p>
+        ))}
+        {deco.touches.length > 0 && (
+          <>
+            <p className="deco-suggestion__touches-titre">Des touches rien que pour toi :</p>
+            <ul className="deco-suggestion__touches">
+              {deco.touches.map((touche, i) => (
+                <li key={i}>{touche}</li>
+              ))}
+            </ul>
+          </>
+        )}
       </section>
 
       <h2>Logements qui te correspondent</h2>

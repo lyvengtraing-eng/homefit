@@ -15,6 +15,11 @@ export const HOBBIES = [
   { valeur: 'musique', label: 'Musique / instrument (besoin d\'une pièce dédiée)' },
   { valeur: 'halterophilie', label: 'Musculation / haltérophilie' },
   { valeur: 'animaux', label: 'Animaux de compagnie' },
+  { valeur: 'velo', label: 'Vélo / cyclisme' },
+  { valeur: 'oenologie', label: 'Œnologie / amateur de vin' },
+  { valeur: 'automobile', label: 'Passion voitures / mécanique' },
+  { valeur: 'fumeur', label: 'Fumeur' },
+  { valeur: 'mobilite_reduite', label: 'Mobilité réduite / besoin d\'accessibilité' },
 ];
 
 export const AMBIANCES = [
@@ -42,4 +47,14 @@ export const TEMPERAMENTS = [
   { valeur: 'energique', label: 'Énergique et sociable' },
   { valeur: 'creatif', label: 'Créatif et original' },
   { valeur: 'pragmatique', label: 'Pragmatique et organisé' },
+];
+
+export const COULEURS = [
+  { valeur: 'neutre', label: 'Neutre et naturel' },
+  { valeur: 'vif', label: 'Vif et affirmé' },
+];
+
+export const LUMIERES = [
+  { valeur: 'lumineux', label: 'Baigné de lumière naturelle' },
+  { valeur: 'tamise', label: 'Ambiance tamisée et cocon' },
 ];

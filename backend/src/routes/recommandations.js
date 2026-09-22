@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import annonces from '../data/annonces.js';
 import { classerAnnonces, HOBBIES_VALIDES, AMBIANCES_VALIDES, TYPES_LOGEMENT_VALIDES } from '../moteur.js';
-import { suggererDeco, STYLES_INTERIEUR_VALIDES, TEMPERAMENTS_VALIDES } from '../deco.js';
+import { suggererDeco, STYLES_INTERIEUR_VALIDES, TEMPERAMENTS_VALIDES, COULEURS_VALIDES, LUMIERES_VALIDES } from '../deco.js';
 
 const router = Router();
 
@@ -17,8 +17,11 @@ router.post('/', (req, res) => {
     typeLogement,
     budgetMax,
     ville,
+    piecesMin,
     styleInterieur,
     temperament,
+    couleur,
+    lumiere,
     texteLibre,
   } = req.body ?? {};
 
@@ -34,14 +37,35 @@ router.post('/', (req, res) => {
   if (budgetMax !== undefined && budgetMax !== null && (!Number.isFinite(budgetMax) || budgetMax < 0)) {
     return res.status(400).json({ erreur: 'Le champ "budgetMax" doit être un nombre positif.' });
   }
+  if (piecesMin !== undefined && piecesMin !== null && (!Number.isFinite(piecesMin) || piecesMin < 0)) {
+    return res.status(400).json({ erreur: 'Le champ "piecesMin" doit être un nombre positif.' });
+  }
   if (styleInterieur !== undefined && styleInterieur !== null && !STYLES_INTERIEUR_VALIDES.includes(styleInterieur)) {
     return res.status(400).json({ erreur: `Le champ "styleInterieur" doit être parmi : ${STYLES_INTERIEUR_VALIDES.join(', ')}.` });
   }
   if (temperament !== undefined && temperament !== null && !TEMPERAMENTS_VALIDES.includes(temperament)) {
     return res.status(400).json({ erreur: `Le champ "temperament" doit être parmi : ${TEMPERAMENTS_VALIDES.join(', ')}.` });
   }
+  if (couleur !== undefined && couleur !== null && !COULEURS_VALIDES.includes(couleur)) {
+    return res.status(400).json({ erreur: `Le champ "couleur" doit être parmi : ${COULEURS_VALIDES.join(', ')}.` });
+  }
+  if (lumiere !== undefined && lumiere !== null && !LUMIERES_VALIDES.includes(lumiere)) {
+    return res.status(400).json({ erreur: `Le champ "lumiere" doit être parmi : ${LUMIERES_VALIDES.join(', ')}.` });
+  }
 
-  const profil = { hobbies, ambiance, ecoleImportante, typeLogement, budgetMax, ville, styleInterieur, temperament };
+  const profil = {
+    hobbies,
+    ambiance,
+    ecoleImportante,
+    typeLogement,
+    budgetMax,
+    ville,
+    piecesMin,
+    styleInterieur,
+    temperament,
+    couleur,
+    lumiere,
+  };
 
   const classement = classerAnnonces(profil, annonces);
   const deco = suggererDeco(profil);
