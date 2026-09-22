@@ -12,6 +12,9 @@ export const HOBBIES = [
   { valeur: 'reception', label: 'Recevoir des amis' },
   { valeur: 'teletravail', label: 'Télétravail fréquent' },
   { valeur: 'jeux_video', label: 'Jeux vidéo / high-tech' },
+  { valeur: 'musique', label: 'Musique / instrument (besoin d\'une pièce dédiée)' },
+  { valeur: 'halterophilie', label: 'Musculation / haltérophilie' },
+  { valeur: 'animaux', label: 'Animaux de compagnie' },
 ];
 
 export const AMBIANCES = [

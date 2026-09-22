@@ -13,6 +13,9 @@ const HOBBIES_VALIDES = [
   'reception',
   'teletravail',
   'jeux_video',
+  'musique',
+  'halterophilie',
+  'animaux',
 ];
 
 const AMBIANCES_VALIDES = ['calme', 'equilibree', 'animee'];
@@ -35,10 +38,33 @@ const MAPPING_HOBBY_EQUIPEMENT = {
   cuisine: 'grande_cuisine',
   teletravail: 'bureau',
   reception: 'terrasse',
+  // Musicien : a besoin d'une pièce à part qu'il peut s'approprier (≥ 20 m²).
+  musique: 'salle_dediee',
+  // Accro à l'haltérophilie : a besoin d'un grand volume/hauteur sous plafond
+  // pour installer ses machines (rack, anneaux...).
+  halterophilie: 'grand_volume',
+  // Animaux de compagnie : profite d'un jardin, en plus du bonus nature
+  // (parc à proximité) ci-dessous.
+  animaux: 'jardin',
+  // Vie nocturne : un espace extérieur pour recevoir, en plus de l'ambiance animée.
+  sorties: 'terrasse',
+  // Calme et studieux : une pièce à part pour s'installer sa propre bibliothèque.
+  lecture: 'salle_dediee',
+};
+
+// Libellés lisibles des équipements, pour les raisons affichées à l'utilisateur.
+const LABELS_EQUIPEMENT = {
+  jardin: 'jardin',
+  garage: 'garage',
+  grande_cuisine: 'grande cuisine',
+  bureau: 'bureau',
+  terrasse: 'terrasse',
+  salle_dediee: 'pièce dédiée (20 m²+)',
+  grand_volume: 'grand volume sous plafond',
 };
 
 // Hobbies qui rendent la proximité de la nature (parcs, forêts, pistes) pertinente.
-const HOBBIES_NATURE = ['course_a_pied', 'jardinage'];
+const HOBBIES_NATURE = ['course_a_pied', 'jardinage', 'animaux'];
 
 /**
  * Déduit l'ambiance préférée du profil : le choix explicite du questionnaire
@@ -99,7 +125,7 @@ function scoreAnnonce(profil, annonce) {
   if (aimeNature) {
     if (annonce.proximiteNature === 'bonne') {
       score += POIDS.nature;
-      raisons.push('Cadre nature à proximité, parfait pour courir ou jardiner');
+      raisons.push('Cadre nature à proximité, parfait pour courir, jardiner ou promener un animal');
     } else if (annonce.proximiteNature === 'moyenne') {
       score += POIDS.nature * 0.3;
     } else {
@@ -119,7 +145,7 @@ function scoreAnnonce(profil, annonce) {
     const equipement = MAPPING_HOBBY_EQUIPEMENT[hobby];
     if (equipement && annonce.equipements.includes(equipement)) {
       score += POIDS.equipement;
-      raisons.push(`Équipement adapté : ${equipement.replace(/_/g, ' ')}`);
+      raisons.push(`Équipement adapté : ${LABELS_EQUIPEMENT[equipement] ?? equipement.replace(/_/g, ' ')}`);
     }
   }
 

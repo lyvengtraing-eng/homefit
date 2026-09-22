@@ -91,6 +91,41 @@ describe('scoreAnnonce', () => {
     const { score } = scoreAnnonce({ hobbies: ['bricolage'], typeLogement: 'appartement' }, sansGarage);
     assert.equal(score, 0);
   });
+
+  test('bonifie un musicien avec une pièce dédiée (20 m²+)', () => {
+    const avecSalle = { ...annonceBase, equipements: ['jardin', 'salle_dediee'] };
+    const { score, raisons } = scoreAnnonce({ hobbies: ['musique'], typeLogement: 'appartement' }, avecSalle);
+    assert.ok(score > 0);
+    assert.ok(raisons.some((r) => r.includes('dédiée')));
+  });
+
+  test("bonifie un haltérophile avec un grand volume sous plafond", () => {
+    const avecVolume = { ...annonceBase, equipements: ['jardin', 'grand_volume'] };
+    const { score, raisons } = scoreAnnonce({ hobbies: ['halterophilie'], typeLogement: 'appartement' }, avecVolume);
+    assert.ok(score > 0);
+    assert.ok(raisons.some((r) => r.includes('volume')));
+  });
+
+  test('bonifie un propriétaire d\'animaux à la fois sur le jardin et la proximité nature', () => {
+    const { score, raisons } = scoreAnnonce({ hobbies: ['animaux'], typeLogement: 'appartement' }, annonceBase);
+    assert.equal(score, POIDS.nature + POIDS.equipement);
+    assert.ok(raisons.some((r) => r.includes('animal')));
+    assert.ok(raisons.some((r) => r.includes('jardin')));
+  });
+
+  test('bonifie un profil vie nocturne (sorties) avec une terrasse pour recevoir', () => {
+    const avecTerrasse = { ...annonceBase, ambiance: 'animee', equipements: ['jardin', 'terrasse'] };
+    const { score } = scoreAnnonce({ hobbies: ['sorties'], typeLogement: 'appartement' }, avecTerrasse);
+    // Ambiance animée (+POIDS.ambiance, déduite du hobby) + équipement terrasse.
+    assert.equal(score, POIDS.ambiance + POIDS.equipement);
+  });
+
+  test('bonifie un profil calme/studieux avec une pièce dédiée pour sa bibliothèque', () => {
+    const avecSalle = { ...annonceBase, equipements: ['jardin', 'salle_dediee'] };
+    const { score } = scoreAnnonce({ hobbies: ['lecture'], typeLogement: 'appartement' }, avecSalle);
+    // Ambiance calme (+POIDS.ambiance, déduite du hobby) + équipement pièce dédiée.
+    assert.equal(score, POIDS.ambiance + POIDS.equipement);
+  });
 });
 
 describe('calculerScoreMax', () => {
