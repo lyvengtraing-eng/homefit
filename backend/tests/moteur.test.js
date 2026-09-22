@@ -1,6 +1,13 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { scoreAnnonce, classerAnnonces, deduireAmbiancePreferee, POIDS } from '../src/moteur.js';
+import {
+  scoreAnnonce,
+  classerAnnonces,
+  deduireAmbiancePreferee,
+  calculerScoreMax,
+  pourcentageCompatibilite,
+  POIDS,
+} from '../src/moteur.js';
 
 const annonceBase = {
   id: 1,
@@ -86,11 +93,67 @@ describe('scoreAnnonce', () => {
   });
 });
 
+describe('calculerScoreMax', () => {
+  test("ne compte que le type de logement si le profil n'active aucun autre critère", () => {
+    assert.equal(calculerScoreMax({}), POIDS.type);
+  });
+
+  test('additionne uniquement les critères réellement activés par le profil', () => {
+    const max = calculerScoreMax({ budgetMax: 300000, ville: 'Nantes', ecoleImportante: 'oui' });
+    assert.equal(max, POIDS.type + POIDS.budget + POIDS.ville + POIDS.ecole);
+  });
+
+  test('compte un bonus équipement par hobby pertinent', () => {
+    const max = calculerScoreMax({ hobbies: ['bricolage', 'cuisine'] });
+    assert.equal(max, POIDS.type + POIDS.equipement * 2);
+  });
+
+  test('ajoute aussi le bonus nature si un hobby y donne droit (ex : jardinage)', () => {
+    const max = calculerScoreMax({ hobbies: ['jardinage'] });
+    assert.equal(max, POIDS.type + POIDS.nature + POIDS.equipement);
+  });
+
+  test("n'ajoute pas de bonus équipement pour un hobby sans équipement associé", () => {
+    const max = calculerScoreMax({ hobbies: ['jeux_video'] });
+    assert.equal(max, POIDS.type);
+  });
+});
+
+describe('pourcentageCompatibilite', () => {
+  test('calcule le pourcentage exact et arrondit', () => {
+    assert.equal(pourcentageCompatibilite(15, 20), 75);
+    assert.equal(pourcentageCompatibilite(1, 3), 33);
+  });
+
+  test('ne descend jamais sous 0 même avec un score négatif', () => {
+    assert.equal(pourcentageCompatibilite(-10, 20), 0);
+  });
+
+  test('ne dépasse jamais 100', () => {
+    assert.equal(pourcentageCompatibilite(30, 20), 100);
+  });
+
+  test('renvoie 0 si le score maximum est nul (évite la division par zéro)', () => {
+    assert.equal(pourcentageCompatibilite(0, 0), 0);
+  });
+});
+
 describe('classerAnnonces', () => {
   test('trie les annonces du meilleur score au moins bon', () => {
     const autre = { ...annonceBase, id: 2, ville: 'Lyon', prix: 999999 };
     const classement = classerAnnonces({ ville: 'Nantes', budgetMax: 350000 }, [autre, annonceBase]);
     assert.equal(classement[0].annonce.id, 1);
     assert.ok(classement[0].score > classement[1].score);
+  });
+
+  test('inclut un pourcentage de compatibilité entre 0 et 100 pour chaque annonce', () => {
+    const classement = classerAnnonces({ ville: 'Nantes', budgetMax: 350000 }, [annonceBase]);
+    assert.ok(classement[0].pourcentage >= 0 && classement[0].pourcentage <= 100);
+  });
+
+  test('une correspondance parfaite donne 100% de compatibilité', () => {
+    const profil = { budgetMax: 350000, ville: 'Nantes', ecoleImportante: 'oui', ambiance: 'calme' };
+    const classement = classerAnnonces(profil, [annonceBase]);
+    assert.equal(classement[0].pourcentage, 100);
   });
 });

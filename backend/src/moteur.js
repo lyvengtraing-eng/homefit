@@ -127,11 +127,49 @@ function scoreAnnonce(profil, annonce) {
 }
 
 /**
- * Classe toutes les annonces pour un profil donné, du meilleur score au moins bon.
+ * Score maximum atteignable pour CE profil (pas un plafond global) : seuls
+ * les critères que le profil active réellement (budget renseigné, ville
+ * renseignée, écoles importantes...) comptent, pour que le pourcentage de
+ * compatibilité reste honnête même si le profil n'a rempli que peu de champs.
+ */
+function calculerScoreMax(profil) {
+  let max = POIDS.type; // toujours atteignable, même sans préférence de type
+
+  if (Number.isFinite(profil.budgetMax) && profil.budgetMax > 0) max += POIDS.budget;
+  if (profil.ville) max += POIDS.ville;
+  if (profil.ecoleImportante === 'oui') max += POIDS.ecole;
+
+  const aimeNature = (profil.hobbies ?? []).some((h) => HOBBIES_NATURE.includes(h));
+  if (aimeNature) max += POIDS.nature;
+
+  if (deduireAmbiancePreferee(profil)) max += POIDS.ambiance;
+
+  const nombreEquipementsPertinents = (profil.hobbies ?? []).filter((h) => MAPPING_HOBBY_EQUIPEMENT[h]).length;
+  max += nombreEquipementsPertinents * POIDS.equipement;
+
+  return max;
+}
+
+/**
+ * Convertit un score brut en pourcentage de compatibilité par rapport au
+ * score maximum atteignable pour ce profil, borné entre 0 et 100.
+ */
+function pourcentageCompatibilite(score, scoreMax) {
+  if (scoreMax <= 0) return 0;
+  return Math.max(0, Math.min(100, Math.round((score / scoreMax) * 100)));
+}
+
+/**
+ * Classe toutes les annonces pour un profil donné, du meilleur score au moins
+ * bon, avec un pourcentage de compatibilité relatif au score maximum atteignable.
  */
 function classerAnnonces(profil, listeAnnonces) {
+  const scoreMax = calculerScoreMax(profil);
   return listeAnnonces
-    .map((annonce) => ({ annonce, ...scoreAnnonce(profil, annonce) }))
+    .map((annonce) => {
+      const { score, raisons } = scoreAnnonce(profil, annonce);
+      return { annonce, score, raisons, pourcentage: pourcentageCompatibilite(score, scoreMax) };
+    })
     .sort((a, b) => b.score - a.score);
 }
 
@@ -141,6 +179,8 @@ export {
   TYPES_LOGEMENT_VALIDES,
   POIDS,
   scoreAnnonce,
+  calculerScoreMax,
+  pourcentageCompatibilite,
   classerAnnonces,
   deduireAmbiancePreferee,
 };
